@@ -47,9 +47,12 @@ jobs:
           projectPath: BogatyrskayaZastava
           buildName: BogatyrskayaZastava
           buildsPath: webgl-build
+          allowDirtyBuild: true
 
-      - name: Add .nojekyll
-        run: touch webgl-build/WebGL/BogatyrskayaZastava/.nojekyll
+      - name: Fix permissions and add .nojekyll
+        run: |
+          sudo chown -R $USER:$USER webgl-build/
+          touch webgl-build/WebGL/BogatyrskayaZastava/.nojekyll
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
