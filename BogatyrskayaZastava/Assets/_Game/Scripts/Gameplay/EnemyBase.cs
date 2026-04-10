@@ -262,6 +262,7 @@ namespace BogatyrskayaZastava.Gameplay
 
         private void RecalculateSpeed()
         {
+            if (_data == null) return;
             float multiplier = 1f;
             for (int i = 0; i < _slowEntries.Count; i++)
             {

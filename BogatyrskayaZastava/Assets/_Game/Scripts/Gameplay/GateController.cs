@@ -18,6 +18,11 @@ namespace BogatyrskayaZastava.Gameplay
             ServiceLocator.Register<GateController>(this);
         }
 
+        private void OnDestroy()
+        {
+            ServiceLocator.Unregister<GateController>();
+        }
+
         private void OnEnable()
         {
             EventBus.Subscribe<EnemyReachedGateEvent>(OnEnemyReachedGate);

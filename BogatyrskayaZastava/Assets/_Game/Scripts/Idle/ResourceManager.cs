@@ -16,6 +16,11 @@ namespace BogatyrskayaZastava.Idle
             ServiceLocator.Register<ResourceManager>(this);
         }
 
+        private void OnDestroy()
+        {
+            ServiceLocator.Unregister<ResourceManager>();
+        }
+
         private void OnEnable()
         {
             EventBus.Subscribe<IdleIncomeReadyEvent>(OnIdleIncome);

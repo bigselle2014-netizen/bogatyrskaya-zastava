@@ -25,6 +25,11 @@ namespace BogatyrskayaZastava.Idle
             ServiceLocator.Register<IdleManager>(this);
         }
 
+        private void OnDestroy()
+        {
+            ServiceLocator.Unregister<IdleManager>();
+        }
+
         private void OnEnable()
         {
             Application.quitting += SaveExitTime;

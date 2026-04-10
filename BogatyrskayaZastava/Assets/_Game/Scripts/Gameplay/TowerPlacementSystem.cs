@@ -24,6 +24,7 @@ namespace BogatyrskayaZastava.Gameplay
 
         private void OnDestroy()
         {
+            ServiceLocator.Unregister<TowerPlacementSystem>();
             EventBus.Unsubscribe<TowerPlacedEvent>(OnTowerPlaced);
             EventBus.Unsubscribe<TowerRemovedEvent>(OnTowerRemoved);
         }

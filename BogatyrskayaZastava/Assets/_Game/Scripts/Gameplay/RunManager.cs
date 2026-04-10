@@ -216,7 +216,6 @@ namespace BogatyrskayaZastava.Gameplay
 
         private void StartNextWave()
         {
-            _currentWave++;
             SetState(RunState.InWave);
             // WaveStartedEvent публикуется EnemyWaveController — здесь не дублируем
         }
