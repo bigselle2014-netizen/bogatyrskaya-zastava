@@ -145,9 +145,11 @@ namespace BogatyrskayaZastava.UI
 
         private Font GetFont()
         {
-            Font f = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            if (f == null) f = Resources.GetBuiltinResource<Font>("Arial.ttf");
-            return f;
+            Font f = Resources.Load<Font>("Fonts/Roboto-Regular");
+            if (f != null) return f;
+            f = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            if (f != null) return f;
+            return Resources.GetBuiltinResource<Font>("Arial.ttf");
         }
     }
 }
