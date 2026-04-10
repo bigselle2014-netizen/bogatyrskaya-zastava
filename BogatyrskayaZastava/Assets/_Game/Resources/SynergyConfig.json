@@ -1,0 +1,350 @@
+{
+  "_meta": {
+    "project": "Богатырская Застава",
+    "version": "1.0",
+    "date": "Апрель 2026",
+    "handover": "Unity Dev Middle — Неделя 6",
+    "notes": "Все 12 синергий S-01–S-12. Источник истины: game-bible.md секция 3. Числа менять только с GD-апрув + обновлением game-bible. Phase 1 = реализуется неделя 7, Phase 2 = после MVP."
+  },
+  "synergies": [
+    {
+      "id": "S-01",
+      "name": "Дружинный строй",
+      "faction": "Дружина",
+      "type": "faction",
+      "requiredTowers": ["DR-1", "DR-2", "DR-3"],
+      "minCount": 3,
+      "maxDistance": null,
+      "effect": {
+        "type": "physical_damage_bonus",
+        "value": 30,
+        "unit": "percent",
+        "target": "all_faction_towers",
+        "description": "+30% physical damage всем башням фракции Дружина на поле"
+      },
+      "stackable": false,
+      "visualSignal": {
+        "color": "#C0A030",
+        "animationType": "glow_pulse",
+        "hudIcon": "synergy_icon_s01",
+        "connectingLine": false
+      },
+      "phase": 1
+    },
+    {
+      "id": "S-02",
+      "name": "Волховской круг",
+      "faction": "Волхвы",
+      "type": "faction",
+      "requiredTowers": ["VL-1", "VL-2", "VL-3"],
+      "minCount": 3,
+      "maxDistance": null,
+      "effect": {
+        "type": "slow_bonus",
+        "value": 15,
+        "unit": "percent_additive",
+        "target": "all_faction_slow_effects",
+        "description": "Все эффекты замедления башен Волхвов +15% (40% → 55%, стакается аддитивно)"
+      },
+      "stackable": false,
+      "visualSignal": {
+        "color": "#4060C0",
+        "animationType": "frost_pulse",
+        "hudIcon": "synergy_icon_s02",
+        "connectingLine": false
+      },
+      "phase": 1
+    },
+    {
+      "id": "S-03",
+      "name": "Лучниковый залп",
+      "faction": "Лучники",
+      "type": "faction",
+      "requiredTowers": ["LU-1", "LU-2", "LU-3"],
+      "minCount": 3,
+      "maxDistance": null,
+      "effect": {
+        "type": "pierce_every_nth_shot",
+        "value": 5,
+        "unit": "shot_number",
+        "target": "all_faction_towers",
+        "description": "Каждый 5-й выстрел любого Лучника автоматически становится пронизывающим (бьёт 3 врагов в линии) — без дополнительной стоимости"
+      },
+      "stackable": false,
+      "visualSignal": {
+        "color": "#40A040",
+        "animationType": "arrow_glow",
+        "hudIcon": "synergy_icon_s03",
+        "connectingLine": false
+      },
+      "phase": 1
+    },
+    {
+      "id": "S-04",
+      "name": "Ярость берсерков",
+      "faction": "Берсерки",
+      "type": "faction",
+      "requiredTowers": ["BE-1", "BE-2", "BE-3"],
+      "minCount": 3,
+      "maxDistance": null,
+      "effect": {
+        "type": "attack_speed_and_dot_duration",
+        "value": {
+          "attackSpeedBonus": 25,
+          "dotDurationBonus": 3.0
+        },
+        "unit": {
+          "attackSpeedBonus": "percent",
+          "dotDurationBonus": "seconds"
+        },
+        "target": "all_faction_towers",
+        "description": "+25% attack speed всем Берсеркам; длительность всех fire DOT-эффектов Берсерков +3 сек"
+      },
+      "stackable": false,
+      "visualSignal": {
+        "color": "#C04000",
+        "animationType": "fire_aura",
+        "hudIcon": "synergy_icon_s04",
+        "connectingLine": false
+      },
+      "phase": 1
+    },
+    {
+      "id": "S-05",
+      "name": "Знахарский собор",
+      "faction": "Знахари",
+      "type": "faction",
+      "requiredTowers": ["ZN-1", "ZN-2", "ZN-3"],
+      "minCount": 3,
+      "maxDistance": null,
+      "effect": {
+        "type": "global_heal_radius",
+        "value": 999,
+        "unit": "cells",
+        "target": "all_allied_towers",
+        "description": "Радиус лечения всех башен Знахарей становится равен всей карте (999 клеток = глобально). Хил одновременно применяется ко всем союзным башням в зоне видимости"
+      },
+      "stackable": false,
+      "visualSignal": {
+        "color": "#A0E0A0",
+        "animationType": "heal_wave",
+        "hudIcon": "synergy_icon_s05",
+        "connectingLine": false
+      },
+      "phase": 1
+    },
+    {
+      "id": "S-06",
+      "name": "Богатырская стена",
+      "faction": "Дружина",
+      "type": "faction_enhanced",
+      "requiredTowers": ["DR-1", "DR-2", "DR-3"],
+      "minCount": 5,
+      "maxDistance": null,
+      "effect": {
+        "type": "faction_tower_invulnerability",
+        "value": {
+          "duration": 10,
+          "cooldown": 45
+        },
+        "unit": {
+          "duration": "seconds",
+          "cooldown": "seconds"
+        },
+        "target": "faction_towers",
+        "description": "Все башни Дружины становятся неуязвимы на 10 секунд. Кулдаун 45 сек. Активируется автоматически при достижении условия; активация вручную недоступна. S-01 и S-06 могут быть активны одновременно"
+      },
+      "stackable": false,
+      "visualSignal": {
+        "color": "#FFD700",
+        "animationType": "gold_shield_pulse",
+        "hudIcon": "synergy_icon_s06",
+        "connectingLine": false
+      },
+      "phase": 1
+    },
+    {
+      "id": "S-07",
+      "name": "Огненный шар",
+      "faction": null,
+      "type": "cross_faction_pair",
+      "requiredTowers": ["BE", "VL"],
+      "minCount": 2,
+      "maxDistance": 3,
+      "effect": {
+        "type": "joint_fireball_aoe",
+        "value": {
+          "damageMult": 2.5,
+          "cooldown": 8
+        },
+        "unit": {
+          "damageMult": "multiplier",
+          "cooldown": "seconds"
+        },
+        "target": "aoe_around_berserker",
+        "description": "Берсерк и Волхв, стоящие в радиусе 3 клеток друг от друга, совместно выпускают огненный шар AOE каждые 8 сек. Урон = baseFireballDamage × 2.5. Активируется для каждой пары отдельно"
+      },
+      "stackable": true,
+      "stackNote": "Несколько пар BE+VL в радиусе 3 клеток создают несколько независимых эффектов",
+      "visualSignal": {
+        "color": "#FF6000",
+        "animationType": "fireball_projectile",
+        "hudIcon": "synergy_icon_s07",
+        "connectingLine": true,
+        "lineColor": "#FF6000"
+      },
+      "phase": 1
+    },
+    {
+      "id": "S-08",
+      "name": "Ядовитое исцеление",
+      "faction": null,
+      "type": "cross_faction_pair",
+      "requiredTowers": ["LU", "ZN"],
+      "minCount": 2,
+      "maxDistance": 3,
+      "effect": {
+        "type": "poison_tick_heals_tower",
+        "value": {
+          "healPerTick": 3
+        },
+        "unit": {
+          "healPerTick": "hp"
+        },
+        "target": "nearest_allied_tower",
+        "description": "Каждый тик яда от любого Лучника (с активным DOT) восстанавливает +3 HP ближайшей союзной башне. Расстояние между Лучником и Знахарём ≤3 клеток для активации"
+      },
+      "stackable": true,
+      "stackNote": "Несколько пар LU+ZN активируют синергию независимо для каждой пары",
+      "visualSignal": {
+        "color": "#60C060",
+        "animationType": "poison_heal_sparkle",
+        "hudIcon": "synergy_icon_s08",
+        "connectingLine": true,
+        "lineColor": "#60C060"
+      },
+      "phase": 1
+    },
+    {
+      "id": "S-09",
+      "name": "Ледяной щит",
+      "faction": null,
+      "type": "cross_faction_pair",
+      "requiredTowers": ["VL", "ZN"],
+      "minCount": 2,
+      "maxDistance": 3,
+      "effect": {
+        "type": "frozen_death_nullify_damage",
+        "value": {
+          "explosionDamageToTowers": 0
+        },
+        "unit": {},
+        "target": "frozen_enemies_on_death",
+        "description": "Враги, убитые в замороженном/замедлённом состоянии (от Волхва), при смерти не наносят урон башням взрывом агонии. Взрыв при смерти = 0 урона башням. Расстояние VL+ZN ≤3 клеток"
+      },
+      "stackable": false,
+      "visualSignal": {
+        "color": "#80C0FF",
+        "animationType": "ice_shatter_suppress",
+        "hudIcon": "synergy_icon_s09",
+        "connectingLine": true,
+        "lineColor": "#80C0FF"
+      },
+      "phase": 2
+    },
+    {
+      "id": "S-10",
+      "name": "Кровавый ливень",
+      "faction": null,
+      "type": "cross_faction_pair",
+      "requiredTowers": ["BE", "LU"],
+      "minCount": 2,
+      "maxDistance": 3,
+      "effect": {
+        "type": "fire_arrows",
+        "value": {
+          "dotDuration": 5.0,
+          "damageBonus": 15
+        },
+        "unit": {
+          "dotDuration": "seconds",
+          "damageBonus": "percent"
+        },
+        "target": "all_archer_attacks",
+        "description": "Стрелы всех Лучников в паре получают огонь: каждый выстрел накладывает fire DOT на 5 сек, урон Лучников +15%. Расстояние BE+LU ≤3 клеток для активации"
+      },
+      "stackable": true,
+      "stackNote": "Несколько пар BE+LU активируют синергию независимо (DOT-эффекты перезаписывают друг друга — не суммируются)",
+      "visualSignal": {
+        "color": "#FF4040",
+        "animationType": "fire_arrow_trail",
+        "hudIcon": "synergy_icon_s10",
+        "connectingLine": true,
+        "lineColor": "#FF4040"
+      },
+      "phase": 2
+    },
+    {
+      "id": "S-11",
+      "name": "Витязь-защитник",
+      "faction": null,
+      "type": "cross_faction_pair",
+      "requiredTowers": ["DR", "ZN"],
+      "minCount": 2,
+      "maxDistance": 3,
+      "effect": {
+        "type": "periodic_shield",
+        "value": {
+          "cooldown": 15,
+          "absorbPercent": 25
+        },
+        "unit": {
+          "cooldown": "seconds",
+          "absorbPercent": "percent"
+        },
+        "target": "dr_tower_in_pair",
+        "description": "Башня Дружины, стоящая рядом (≤3 клеток) со Знахарём, получает щит каждые 15 сек, поглощающий 25% урона от следующего удара. Щит визуально отображается на башне"
+      },
+      "stackable": true,
+      "stackNote": "Несколько пар DR+ZN дают щит каждой башне Дружины в паре независимо",
+      "visualSignal": {
+        "color": "#FFD060",
+        "animationType": "golden_shield_appear",
+        "hudIcon": "synergy_icon_s11",
+        "connectingLine": true,
+        "lineColor": "#FFD060"
+      },
+      "phase": 2
+    },
+    {
+      "id": "S-12",
+      "name": "Пепел и лёд",
+      "faction": null,
+      "type": "cross_faction_trio",
+      "requiredTowers": ["BE", "VL", "LU"],
+      "minCount": 3,
+      "maxDistance": null,
+      "effect": {
+        "type": "global_wave_debuff",
+        "value": {
+          "speedReduction": 20,
+          "damageReceiveBonus": 20
+        },
+        "unit": {
+          "speedReduction": "percent",
+          "damageReceiveBonus": "percent"
+        },
+        "target": "all_enemies_on_wave",
+        "description": "При одновременном присутствии хотя бы 1 Берсерка + 1 Волхва + 1 Лучника на поле: все враги текущей волны получают глобальный дебафф -20% скорость, +20% получаемый урон. Дебафф обновляется каждую волну"
+      },
+      "stackable": false,
+      "visualSignal": {
+        "color": "#A000A0",
+        "animationType": "tri_aura_pulse",
+        "hudIcon": "synergy_icon_s12",
+        "connectingLine": false
+      },
+      "phase": 2
+    }
+  ]
+}

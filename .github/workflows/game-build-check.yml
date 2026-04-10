@@ -1,0 +1,45 @@
+name: Game Build Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/**'
+      - 'unity-scripts/**'
+      - 'build-check/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/**'
+      - 'unity-scripts/**'
+      - 'build-check/**'
+
+concurrency:
+  group: game-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-check:
+    name: dotnet build verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ hashFiles('build-check/*.csproj') }}
+          restore-keys: nuget-
+
+      - name: Build
+        working-directory: build-check
+        run: dotnet build BogatyrskayaZastava.csproj --nologo -v minimal

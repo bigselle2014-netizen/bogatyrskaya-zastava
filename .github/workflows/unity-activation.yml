@@ -1,0 +1,46 @@
+name: Unity — License Setup Info
+
+# НОВАЯ СХЕМА 2025 — .ulf файл БОЛЬШЕ НЕ НУЖЕН!
+#
+# Старая схема (ALF → ULF через license.unity3d.com/manual) умерла в 2024 году.
+# Теперь активация через buildalon/activate-unity-license@v1 — просто email + пароль.
+#
+# ЧТО НУЖНО СДЕЛАТЬ ОДИН РАЗ:
+#   GitHub → Settings → Secrets and variables → Actions → New repository secret
+#
+#   Добавить 2 секрета:
+#   ┌─────────────────┬──────────────────────────────────────────┐
+#   │ UNITY_USERNAME  │ твой email от unity.com (seorezult@...)  │
+#   │ UNITY_PASSWORD  │ твой пароль от unity.com                 │
+#   └─────────────────┴──────────────────────────────────────────┘
+#
+# ПОСЛЕ ЭТОГО:
+#   - unity-webgl-pages.yml   → собирает WebGL → деплоит на GitHub Pages
+#   - unity-android-build.yml → собирает APK → загружает как artifact
+#
+# GitHub Pages включить:
+#   Settings → Pages → Source: Deploy from branch → Branch: gh-pages → Save
+#
+# Ссылка на игру будет:
+#   https://bigselle2014-netizen.github.io/analyz-rinka/
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  info:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print setup instructions
+        run: |
+          echo "========================================"
+          echo "  Unity License — 2025 Edition"
+          echo "========================================"
+          echo ""
+          echo "Добавь 2 секрета в GitHub Secrets:"
+          echo "  UNITY_USERNAME = email от unity.com"
+          echo "  UNITY_PASSWORD = пароль от unity.com"
+          echo ""
+          echo "Затем запусти unity-webgl-pages.yml"
+          echo "Игра появится на GitHub Pages через ~45 мин"
+          echo "========================================"

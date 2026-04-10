@@ -1,0 +1,160 @@
+name: Unity Build & Deploy
+
+# Триггеры: push в main (IL2CPP, production) и develop (Mono, быстрая сборка)
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+env:
+  UNITY_VERSION: 2022.3.45f1
+  # Версионирование: {major}.{minor}.{build_number}
+  # major/minor — из VERSION файла в корне репо, build_number = github.run_number
+  BUILD_NUMBER: ${{ github.run_number }}
+
+jobs:
+  # ─────────────────────────────────────────────
+  # JOB 1: Build
+  # ─────────────────────────────────────────────
+  build:
+    name: Build (${{ github.ref_name }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      # 1. Чекаут репозитория с LFS (спрайты, аудио)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      # 2. Кеширование Library/ — ключевое для скорости (Unity перекомпилирует иначе с нуля)
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+
+      # 3. Читаем версию из файла VERSION (формат: major.minor)
+      - name: Read version
+        id: version
+        run: |
+          VERSION=$(cat VERSION 2>/dev/null || echo "0.1")
+          FULL_VERSION="${VERSION}.${{ env.BUILD_NUMBER }}"
+          echo "version=${FULL_VERSION}" >> $GITHUB_OUTPUT
+          echo "Building version: ${FULL_VERSION}"
+
+      # 4. Определяем тип сборки по ветке
+      - name: Determine build config
+        id: config
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "scripting_backend=IL2CPP" >> $GITHUB_OUTPUT
+            echo "build_target=AndroidAppBundle" >> $GITHUB_OUTPUT
+            echo "artifact_name=release-aab" >> $GITHUB_OUTPUT
+          else
+            echo "scripting_backend=Mono2x" >> $GITHUB_OUTPUT
+            echo "build_target=Android" >> $GITHUB_OUTPUT
+            echo "artifact_name=develop-apk" >> $GITHUB_OUTPUT
+          fi
+
+      # 5. Unity Build (через game-ci/unity-builder)
+      - name: Build Unity project
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE:   ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL:     ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD:  ${{ secrets.UNITY_PASSWORD }}
+        with:
+          unityVersion:        ${{ env.UNITY_VERSION }}
+          targetPlatform:      Android
+          buildMethod:         BuildScript.PerformBuild
+          androidExportType:   ${{ steps.config.outputs.build_target }}
+          androidKeystoreName: bogz.keystore
+          androidKeystoreBase64: ${{ secrets.KEYSTORE_BASE64 }}
+          androidKeystorePass: ${{ secrets.KEY_PASSWORD }}
+          androidKeyaliasName: ${{ secrets.KEY_ALIAS }}
+          androidKeyaliasPass: ${{ secrets.KEY_PASSWORD }}
+          versioning:          Custom
+          version:             ${{ steps.version.outputs.version }}
+          buildName:           BogatyrZastava
+          # Scripting backend задаётся через buildMethod (параметр передаётся через env)
+          customParameters:    -scriptingBackend ${{ steps.config.outputs.scripting_backend }}
+
+      # 6. Загрузка артефакта для следующего job
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.config.outputs.artifact_name }}-${{ steps.version.outputs.version }}
+          path: build/Android/
+          retention-days: 7
+
+    outputs:
+      version:       ${{ steps.version.outputs.version }}
+      artifact_name: ${{ steps.config.outputs.artifact_name }}
+
+  # ─────────────────────────────────────────────
+  # JOB 2: Sign & Deploy (только если build прошёл)
+  # ─────────────────────────────────────────────
+  deploy:
+    name: Deploy to Firebase App Distribution
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      # Скачиваем артефакт из предыдущего job
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build.outputs.artifact_name }}-${{ needs.build.outputs.version }}
+          path: build/
+
+      # Находим .aab или .apk в директории сборки
+      - name: Find build file
+        id: find_build
+        run: |
+          BUILD_FILE=$(find build/ -name "*.aab" -o -name "*.apk" | head -1)
+          echo "build_file=${BUILD_FILE}" >> $GITHUB_OUTPUT
+          echo "Found build: ${BUILD_FILE}"
+
+      # Деплой в Firebase App Distribution
+      # Группы: qa-team (develop), internal-testers (main)
+      - name: Deploy to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId:       ${{ secrets.FIREBASE_APP_ID }}
+          token:       ${{ secrets.FIREBASE_TOKEN }}
+          groups:      ${{ github.ref_name == 'main' && 'internal-testers' || 'qa-team' }}
+          file:        ${{ steps.find_build.outputs.build_file }}
+          releaseNotes: |
+            Branch: ${{ github.ref_name }}
+            Version: ${{ needs.build.outputs.version }}
+            Commit: ${{ github.sha }}
+            Message: ${{ github.event.head_commit.message }}
+
+      # Уведомление в Slack (опционально, раскомментировать при наличии webhook)
+      # - name: Notify Slack
+      #   uses: slackapi/slack-github-action@v1
+      #   with:
+      #     payload: '{"text":"Build ${{ needs.build.outputs.version }} deployed to Firebase App Distribution"}'
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+# ─────────────────────────────────────────────
+# ТРЕБУЕМЫЕ SECRETS (настроить в Settings → Secrets → Actions):
+#
+#   UNITY_LICENSE      — содержимое .ulf файла лицензии Unity
+#   UNITY_EMAIL        — email аккаунта Unity
+#   UNITY_PASSWORD     — пароль аккаунта Unity
+#   KEYSTORE_BASE64    — keystore файл, закодированный в base64
+#                        Получить: base64 -w 0 bogz.keystore
+#   KEY_ALIAS          — alias ключа в keystore
+#   KEY_PASSWORD       — пароль keystore и ключа
+#   FIREBASE_APP_ID    — ID приложения Firebase (1:123456:android:abcdef)
+#   FIREBASE_TOKEN     — Firebase CI token (получить: firebase login:ci)
+# ─────────────────────────────────────────────

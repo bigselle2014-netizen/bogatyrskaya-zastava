@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <Optimize>false</Optimize>
+    <!-- Suppress warnings safe to ignore in stub-compilation context -->
+    <!-- CS0169: поля [SerializeField] назначаются через Inspector, не в коде -->
+    <!-- CS0067: события-стабы (OnMessageReceived) будут подписаны реальным SDK -->
+    <NoWarn>CS0649;CS0168;CS0219;CS1998;CS0108;CS0114;CS0169;CS0067</NoWarn>
+    <OutputType>Library</OutputType>
+    <AssemblyName>BogatyrskayaZastava.BuildCheck</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Game source — all C# scripts -->
+    <Compile Include="../scripts/**/*.cs" />
+    <Compile Include="../unity-scripts/**/*.cs" />
+    <Compile Include="../BogatyrskayaZastava/Assets/_Game/Scripts/Core/GameBootstrap.cs" />
+    <Compile Include="../BogatyrskayaZastava/Assets/_Game/Scripts/Gameplay/TowerPool.cs" />
+
+    <!-- Stubs/UnityEngine.cs, Stubs/UnityEngineUI.cs, Stubs/TMPro.cs
+         are auto-included by SDK from this project directory. -->
+  </ItemGroup>
+
+</Project>
