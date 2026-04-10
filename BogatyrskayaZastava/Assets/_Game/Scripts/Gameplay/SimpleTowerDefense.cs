@@ -153,8 +153,8 @@ namespace BogatyrskayaZastava.Gameplay
                 "ВОРОТА: 100", 22, new Color(1f,0.5f,0.5f));
 
             // Статус / подсказка
-            _statusText = MakeText(go.transform, V2(0f,0.82f), V2(1f,0.90f),
-                "Кликни пустую клетку — поставь башню (50 золота)", 18, new Color(0.7f,0.9f,1f));
+            _statusText = MakeText(go.transform, V2(0f,0.82f), V2(0.77f,0.90f),
+                "Кликни синюю клетку — поставь башню (50 золота).  Затем нажми СЛЕДУЮЩАЯ ВОЛНА", 16, new Color(0.7f,0.9f,1f));
 
             // Кнопка «Следующая волна»
             _waveBtn = MakeButton(go.transform, V2(0.35f,0.73f), V2(0.65f,0.82f),
@@ -170,11 +170,11 @@ namespace BogatyrskayaZastava.Gameplay
             MakePanel(go.transform, V2(0.78f,0.00f), V2(1.00f,0.70f), new Color(0.07f,0.10f,0.22f));
             MakeText(go.transform, V2(0.79f,0.63f), V2(0.99f,0.70f), "ЛЕГЕНДА", 16, Color.white);
             MakeLegendRow(go.transform, V2(0.79f,0.55f), V2(0.99f,0.62f),
-                new Color(0.3f,0.7f,0.3f), "🗼 Башня (50🪙)");
+                new Color(0.3f,0.7f,0.3f), "Башня (50)");
             MakeLegendRow(go.transform, V2(0.79f,0.47f), V2(0.99f,0.54f),
-                new Color(0.8f,0.25f,0.25f), "👹 Враг");
+                new Color(0.8f,0.25f,0.25f), "Враг");
             MakeLegendRow(go.transform, V2(0.79f,0.39f), V2(0.99f,0.46f),
-                new Color(0.55f,0.40f,0.10f), "〰 Путь");
+                new Color(0.45f,0.30f,0.08f), "Путь врагов");
 
             // Корень для сетки
             var gridGO = new GameObject("GridRoot");
@@ -217,8 +217,8 @@ namespace BogatyrskayaZastava.Gameplay
 
                     var img = cellGO.AddComponent<Image>();
                     img.color = isPath
-                        ? new Color(0.55f, 0.40f, 0.10f, 0.5f)
-                        : new Color(0.15f, 0.22f, 0.38f, 0.8f);
+                        ? new Color(0.45f, 0.30f, 0.08f, 1f)
+                        : new Color(0.15f, 0.22f, 0.38f, 0.9f);
 
                     var cell = new Cell
                     {
@@ -245,15 +245,13 @@ namespace BogatyrskayaZastava.Gameplay
                 }
             }
 
-            // Позиция ячеек выставляется в PositionCells() из-за зависимости от Canvas scale
             StartCoroutine(PositionCells());
         }
 
         private IEnumerator PositionCells()
         {
-            yield return null; // дождаться layout-прохода
+            yield return null;
 
-            // Размер GridRoot в пикселях reference-пространства
             float w = _gridRoot.rect.width;
             float h = _gridRoot.rect.height;
 
@@ -266,6 +264,60 @@ namespace BogatyrskayaZastava.Gameplay
                     var rt = _cells[c][r].visual.GetComponent<RectTransform>();
                     rt.anchoredPosition = new Vector2(startX + c * CELL_PX, startY + r * CELL_PX);
                 }
+
+            AddPathArrows(startX, startY);
+        }
+
+        /// <summary>Добавляет стрелки направления и метки СТАРТ/ФИНИШ на путь.</summary>
+        private void AddPathArrows(float startX, float startY)
+        {
+            string[] arrows = { "→", "↑", "↓", "←" };
+
+            for (int i = 0; i < PATH.Length; i++)
+            {
+                var pos = new Vector2(startX + PATH[i].x * CELL_PX, startY + PATH[i].y * CELL_PX);
+
+                // Определяем направление к следующей точке
+                string arrow = "";
+                string label = "";
+
+                if (i == 0)
+                    label = "СТАРТ";
+                else if (i == PATH.Length - 1)
+                    label = "ФИНИШ";
+                else
+                {
+                    var d = PATH[i + 1] - PATH[i];
+                    if      (d.x > 0) arrow = ">";
+                    else if (d.x < 0) arrow = "<";
+                    else if (d.y > 0) arrow = "^";
+                    else              arrow = "v";
+                }
+
+                string text = string.IsNullOrEmpty(label) ? arrow : label;
+                if (string.IsNullOrEmpty(text)) continue;
+
+                var go = new GameObject("PathLabel");
+                go.transform.SetParent(_gridRoot, false);
+                var rt = go.AddComponent<RectTransform>();
+                rt.anchorMin = Vector2.zero;
+                rt.anchorMax = Vector2.zero;
+                rt.pivot     = V2(0.5f, 0.5f);
+                rt.sizeDelta = V2(CELL_PX, CELL_PX);
+                rt.anchoredPosition = pos;
+
+                var txt = go.AddComponent<Text>();
+                txt.text      = text;
+                txt.font      = GetFont();
+                txt.fontSize  = string.IsNullOrEmpty(label) ? 28 : 14;
+                txt.fontStyle = FontStyle.Bold;
+                txt.alignment = TextAnchor.MiddleCenter;
+                txt.color     = i == 0
+                    ? new Color(0.3f, 1f, 0.3f)
+                    : i == PATH.Length - 1
+                        ? new Color(1f, 0.3f, 0.3f)
+                        : new Color(1f, 0.85f, 0.3f, 0.9f);
+            }
         }
 
         // ─── Размещение башни ──────────────────────────────────────────
@@ -288,9 +340,10 @@ namespace BogatyrskayaZastava.Gameplay
             var labelGO = new GameObject("TowerLabel");
             labelGO.transform.SetParent(cell.visual.transform, false);
             var txt = labelGO.AddComponent<Text>();
-            txt.text      = "🗼";
+            txt.text      = "T";
             txt.font      = GetFont();
-            txt.fontSize  = 24;
+            txt.fontSize  = 26;
+            txt.fontStyle = FontStyle.Bold;
             txt.alignment = TextAnchor.MiddleCenter;
             txt.color     = Color.white;
             var trt = labelGO.GetComponent<RectTransform>();
@@ -374,9 +427,10 @@ namespace BogatyrskayaZastava.Gameplay
             var lblGO = new GameObject("Label");
             lblGO.transform.SetParent(enemyGO.transform, false);
             var lbl = lblGO.AddComponent<Text>();
-            lbl.text      = "👹";
+            lbl.text      = "!";
             lbl.font      = GetFont();
             lbl.fontSize  = 20;
+            lbl.fontStyle = FontStyle.Bold;
             lbl.alignment = TextAnchor.MiddleCenter;
             lbl.color     = Color.white;
             var lblRt = lblGO.GetComponent<RectTransform>();
