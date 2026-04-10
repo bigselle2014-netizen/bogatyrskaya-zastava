@@ -26,13 +26,6 @@ jobs:
         with:
           lfs: false
 
-      - name: Activate Unity License
-        uses: buildalon/activate-unity-license@v2
-        with:
-          license: 'personal'
-          username: ${{ secrets.UNITY_USERNAME }}
-          password: ${{ secrets.UNITY_PASSWORD }}
-
       - name: Cache Unity Library
         uses: actions/cache@v4
         with:
