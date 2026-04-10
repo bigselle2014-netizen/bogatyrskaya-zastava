@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using BogatyrskayaZastava.Gameplay;
 
 namespace BogatyrskayaZastava.Core
 {
@@ -29,11 +28,10 @@ namespace BogatyrskayaZastava.Core
         private void OnSceneUnloaded(UnityEngine.SceneManagement.Scene scene)
         {
             // UD-07: очищаем EventBus при выгрузке Gameplay — нет стейлых подписчиков
+            // TowerPool/EnemyPool сами подписаны на sceneUnloaded и очищают себя
             if (scene.name == "Gameplay")
             {
                 EventBus.Clear();
-                TowerPool.ClearAll();
-                EnemyPool.ClearAll();
             }
         }
 

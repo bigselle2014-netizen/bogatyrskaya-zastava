@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace BogatyrskayaZastava.Gameplay
 {
@@ -32,6 +33,18 @@ namespace BogatyrskayaZastava.Gameplay
 
         // Container object to keep hierarchy clean (created on first use)
         private static Transform _poolContainer;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void Init()
+        {
+            SceneManager.sceneUnloaded += OnSceneUnloaded;
+        }
+
+        private static void OnSceneUnloaded(UnityEngine.SceneManagement.Scene scene)
+        {
+            if (scene.name == "Gameplay")
+                ClearAll();
+        }
 
         // ─────────────────────────────────────────────────────────────
         // PrewarmPool
