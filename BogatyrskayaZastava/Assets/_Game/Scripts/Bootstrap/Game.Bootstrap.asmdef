@@ -1,0 +1,18 @@
+{
+    "name": "Game.Bootstrap",
+    "rootNamespace": "BogatyrskayaZastava.Core",
+    "references": [
+        "Game.Core",
+        "Game.Services",
+        "Game.Idle"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
